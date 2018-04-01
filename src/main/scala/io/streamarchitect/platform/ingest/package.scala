@@ -1,5 +1,5 @@
 
-package io.streamarchitect.io.plattform
+package io.streamarchitect.platform
 
 package object ingest {
 
