@@ -20,7 +20,7 @@ package io.streamarchitect.platform.ingest
 import com.typesafe.config.ConfigFactory
 import akka.actor.ActorSystem
 import akka.pattern.{Backoff, BackoffSupervisor}
-import io.streamarchitect.platform.ingest.mqtt.{Boot, MqttBroker, Start}
+import io.streamarchitect.platform.ingest.mqtt.{MqttBroker, Start}
 
 trait System {
   private val config = ConfigFactory.load()
