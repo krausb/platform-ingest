@@ -66,7 +66,7 @@ object MqttConfig {
     val props = new Properties()
     props.setProperty("host", brokerConfig.bindAddress)
     props.setProperty("port", brokerConfig.bindPort.toString)
-    props.setProperty("allow_anonymous", "false")
+    props.setProperty("allow_anonymous", "true")
     props.setProperty("allow_zero_byte_client_id", "false")
     props
   }
