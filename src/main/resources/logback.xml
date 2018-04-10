@@ -14,7 +14,11 @@
         <appender-ref ref="STDOUT" />
     </logger>
 
-    <root level="trace">
+    <logger name="org.apache.kafka" level="info" additivity="false">>
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <root level="error">
         <appender-ref ref="STDOUT" />
     </root>
 

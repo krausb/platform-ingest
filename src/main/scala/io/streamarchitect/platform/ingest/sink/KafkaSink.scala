@@ -17,41 +17,42 @@
 
 package io.streamarchitect.platform.ingest.sink
 
-import akka.actor.SupervisorStrategy.{ Escalate, Restart }
-import akka.actor.{ ActorInitializationException, OneForOneStrategy, Props, SupervisorStrategy }
+import akka.actor.SupervisorStrategy.{Escalate, Restart}
+import akka.actor.{ActorInitializationException, OneForOneStrategy, Props, SupervisorStrategy}
 import akka.kafka.ProducerSettings
 import io.streamarchitect.platform.ingest.IngestConfig
-import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.kafka.common.serialization.{ ByteArraySerializer, Serializer, StringSerializer }
+import org.apache.kafka.clients.producer.{Callback, ProducerRecord, RecordMetadata}
+import org.apache.kafka.common.serialization.{ByteArraySerializer, Serializer, StringSerializer}
+
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Kafka Sink to forward ingested messages to Kafka
   */
 class KafkaSink extends SinkActor {
 
+  implicit val ec: ExecutionContext = context.dispatcher
+
   private val kafkaSettings = KafkaSink.kafkaProducerSettings()
   log.info(s"Initializiing KafkaSink with settings: ${kafkaSettings}")
 
   private val kafkaProducer = KafkaSink.kafkaProducerSettings().createKafkaProducer()
 
+  val outboundTopic = IngestConfig.config.getString("kafkaSink.topic")
+
   override def handleReceivedMessage(s: SinkMessage): Unit = {
-    val result = kafkaProducer.send(
-      new ProducerRecord(
-        s.inboundTopic,
-        s.payload
+    Future {
+      val res = kafkaProducer.send(
+        new ProducerRecord(
+          outboundTopic,
+          s.payload
+        ),
+        new Callback {
+          override def onCompletion(metadata: RecordMetadata, exception: Exception): Unit = {
+            log.debug(s"Successfully sent to kafka: ${metadata}")
+          }
+        }
       )
-    )
-    result match {
-      case r if result.isDone =>
-        log.debug(
-          s"Message received from topic ${s.inboundTopic} successfully sent to Kafka: ${r.get()}"
-        )
-      case r if result.isCancelled =>
-        log.debug(
-          s"Message received from topic ${s.inboundTopic} failed sending to Kafka:  ${r.get()}"
-        )
-      case _ =>
-        log.error(s"Something bad happened with the sink message ${s}")
     }
   }
 

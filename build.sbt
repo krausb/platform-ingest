@@ -11,13 +11,13 @@ lazy val `streamarchitect-io-plattform-ingest` =
       libraryDependencies ++= Seq(
         library.scalaCheck % Test,
         library.scalaTest  % Test,
-        library.moquette,
         library.typesafeConfig,
         library.domain
       ),
       libraryDependencies ++= library.log,
       libraryDependencies ++= library.akkaBundle,
-      libraryDependencies ++= library.kafkaBundle
+      libraryDependencies ++= library.kafkaBundle,
+      libraryDependencies ++= library.mqttBundle
     )
 
 // *****************************************************************************
@@ -35,6 +35,7 @@ lazy val library =
       val alpakka        = "0.9"
       val akka           = "2.5.6"
       val moquette       = "0.10"
+      val alpakkaMqtt    = "0.18"
       val domain         = "1.0.0-SNAPSHOT"
       val kafka          = "1.1.0"
       val akkaKafkaStreams = "0.20"
@@ -46,7 +47,8 @@ lazy val library =
     val scalaLogging     = "com.typesafe.scala-logging" %%  "scala-logging"             % Version.scalaLogging
     val typesafeConfig   = "com.typesafe"             % "config"                    % Version.typesafeConfig
 
-    val moquette   = "io.moquette"    % "moquette-broker" % Version.moquette
+    val moquette         = "io.moquette"              % "moquette-broker"           % Version.moquette
+    val alpakkaMqtt      = "com.lightbend.akka"       %% "akka-stream-alpakka-mqtt" % Version.alpakkaMqtt
 
     val alpakka          = "com.lightbend.akka"       %% "akka-stream-alpakka-mqtt" % Version.alpakka
     val akka             = "com.typesafe.akka"        %% "akka-actor"               % Version.akka
@@ -59,6 +61,7 @@ lazy val library =
 
     val domain           = "io.streamarchitect"       %% "streamarchitect-io-platform-domain" % Version.domain
 
+    val mqttBundle = Seq(moquette, alpakkaMqtt)
     val akkaBundle = Seq(akka, akkaLog, akkaStream, akkaTestKit)
     val kafkaBundle = Seq(kafka, akkaKafkaStreams)
     val log = Seq(logback, scalaLogging)

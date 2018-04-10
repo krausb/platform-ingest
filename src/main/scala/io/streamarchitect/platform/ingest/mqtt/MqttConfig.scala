@@ -19,6 +19,8 @@ package io.streamarchitect.platform.ingest.mqtt
 
 import java.util.Properties
 
+import io.streamarchitect.platform.ingest.IngestConfig
+
 /**
   * Configuration for the [[MqttBroker]]
   *
@@ -39,9 +41,15 @@ object MqttConfig {
   /**
     * Factory for returning a default configuration
     *
-    * @return [[BrokerConfig("0.0.0.0", 1883, "mqttuser", "mqttuser123")]]
+    * @return [[BrokerConfig]]
     */
-  def getDefaultConfig(): BrokerConfig = BrokerConfig("0.0.0.0", 1883, "mqttuser", "mqttuser123")
+  def getDefaultConfig(): BrokerConfig =
+    BrokerConfig(
+      IngestConfig.config.getString("mqtt.broker.binding-host"),
+      IngestConfig.config.getInt("mqtt.broker.binding-port"),
+      IngestConfig.config.getString("mqtt.broker.default-user"),
+      IngestConfig.config.getString("mqtt.broker.default-pw")
+    )
 
   /**
     * Factory for generating a MQTT Config

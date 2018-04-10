@@ -17,15 +17,24 @@
 
 package io.streamarchitect.platform.ingest
 
+import scala.concurrent.duration._
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
-import io.streamarchitect.platform.ingest.mqtt.{ MqttBroker, Start }
+import io.streamarchitect.platform.ingest.mqtt.{
+  BrokerStart,
+  ConnectorStart,
+  MqttBroker,
+  MqttConnector
+}
 import io.streamarchitect.platform.ingest.sink.SinkFactory
+
+import scala.concurrent.ExecutionContext
 
 trait System {
   private val config = ConfigFactory.load()
 
-  implicit val system = ActorSystem("streamarchitect-io-platform-ingest", config)
+  implicit val system               = ActorSystem("streamarchitect-io-platform-ingest", config)
+  implicit val ec: ExecutionContext = system.dispatcher
 
   /*
    * Bootstrap and start Kafka Producer
@@ -36,10 +45,17 @@ trait System {
    * Bootstrap and start MQTT Broker
    */
   val mqttBroker = system.actorOf(MqttBroker.props())
-  mqttBroker ! Start
+  mqttBroker ! BrokerStart
 
   /*
- * Bootstrap MQTT Client to send data to the sink
- */
-
+   * Bootstrap MQTT Client to send data to the sink
+   * Workaround with the delay should be removed:
+   * Required is a kind of [[Future]] event provided by the mqttBroker
+   * that notifies us when the broker finished its bootstrap phase and
+   * is ready for connection
+   */
+  system.scheduler.scheduleOnce(5 seconds) {
+    val mqttConnector = system.actorOf(MqttConnector.props(sink))
+    mqttConnector ! ConnectorStart
+  }
 }

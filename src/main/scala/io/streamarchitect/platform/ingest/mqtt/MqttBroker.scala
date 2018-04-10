@@ -19,54 +19,55 @@ package io.streamarchitect.platform.ingest.mqtt
 
 import akka.NotUsed
 import akka.actor.{ ActorLogging, FSM, Props }
+import com.typesafe.scalalogging.Logger
 import io.moquette.server.Server
 
-class MqttBroker(brokerConfig: BrokerConfig)
-    extends FSM[MqttBrokerState, NotUsed]
-    with ActorLogging {
+class MqttBroker(brokerConfig: BrokerConfig) extends FSM[MqttBrokerState, NotUsed] {
+
+  private val logger = Logger(getClass)
 
   private val broker = new Server()
 
-  startWith(Down, NotUsed)
+  startWith(BrokerDown, NotUsed)
 
-  when(Down) {
-    case Event(Start, _) =>
-      goto(Up)
+  when(BrokerDown) {
+    case Event(BrokerStart, _) =>
+      goto(BrokerUp)
     case _ =>
-      log.error("Only allowed event: Boot") // do nothing
+      logger.error("Only allowed event: Boot") // do nothing
       stay()
   }
 
   onTransition {
-    case Down -> Up =>
-      log.info(s"Starting MQTT Broker...")
+    case BrokerDown -> BrokerUp =>
+      logger.info(s"Starting MQTT Broker...")
       startBroker
   }
 
-  when(Up) {
-    case Event(Down, _) =>
-      goto(Down)
+  when(BrokerUp) {
+    case Event(BrokerDown, _) =>
+      goto(BrokerDown)
   }
 
   onTransition {
-    case Up -> Down =>
-      log.info(s"Shutting down MQTT Broker...")
+    case BrokerUp -> BrokerDown =>
+      logger.info(s"Shutting down MQTT Broker...")
       stopBroker
   }
 
   onTermination {
     case StopEvent(FSM.Normal, state, data) =>
-      log.info("Stopping MQTT Broker System... Bye :-)")
+      logger.info("Stopping MQTT Broker System... Bye :-)")
     case StopEvent(FSM.Shutdown, state, data) ⇒ // ...
-      log.info("Stopping MQTT Broker System... Bye :-)")
+      logger.info("Stopping MQTT Broker System... Bye :-)")
     case StopEvent(FSM.Failure(cause), state, data) =>
-      log.error(s"Restarting MQTT Broker in state ${state} on error case: ${cause} ...")
-      goto(Up)
+      logger.error(s"Restarting MQTT Broker in state ${state} on error case: ${cause} ...")
+      goto(BrokerUp)
   }
 
   whenUnhandled {
     case Event(e, s) ⇒
-      log.warning("received unhandled request {} in state {}/{}", e, stateName, s)
+      logger.error("received unhandled request {} in state {}/{}", e, stateName, s)
       stay
   }
 
@@ -115,14 +116,14 @@ object MqttBroker {
  * Broker States
  */
 sealed trait MqttBrokerState
-case object Down  extends MqttBrokerState
-case object Up    extends MqttBrokerState
-case object Error extends MqttBrokerState
+case object BrokerDown  extends MqttBrokerState
+case object BrokerUp    extends MqttBrokerState
+case object BrokerError extends MqttBrokerState
 
 /*
  * Broker Commands
  */
 sealed trait MqttBrokerCommand
-case object Start      extends MqttBrokerCommand
-case object Reconnect  extends MqttBrokerCommand
-case object Disconnect extends MqttBrokerCommand
+case object BrokerStart      extends MqttBrokerCommand
+case object BrokerReconnect  extends MqttBrokerCommand
+case object BrokerDisconnect extends MqttBrokerCommand
