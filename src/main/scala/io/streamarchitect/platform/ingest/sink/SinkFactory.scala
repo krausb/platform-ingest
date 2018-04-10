@@ -15,12 +15,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.streamarchitect.platform
+package io.streamarchitect.platform.ingest.sink
 
-package object ingest {
+import akka.actor.{ ActorRef, ActorSystem }
+import com.typesafe.scalalogging.Logger
+import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
-  type Traversable[+A] = scala.collection.immutable.Traversable[A]
-  type Iterable[+A]    = scala.collection.immutable.Iterable[A]
-  type Seq[+A]         = scala.collection.immutable.Seq[A]
-  type IndexedSeq[+A]  = scala.collection.immutable.IndexedSeq[A]
+/**
+  * Factory to construct target sinks
+  */
+object SinkFactory {
+
+  private val log = Logger(getClass)
+
+  /**
+    * Factory method to create a concrete sink
+    * @param activeSink
+    * @return
+    */
+  def createSink(activeSink: String)(implicit system: ActorSystem): ActorRef =
+    activeSink match {
+      case "KafkaSink" =>
+        log.info("Creating new KafkaSink...")
+        system.actorOf(KafkaSink.props)
+      case _ =>
+        throw new NotImplementedException()
+    }
+
 }

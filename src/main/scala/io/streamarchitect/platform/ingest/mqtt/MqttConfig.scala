@@ -1,18 +1,18 @@
 /*
  * Copyright (C) 2018  Bastian Kraus
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version)
+ * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package io.streamarchitect.platform.ingest.mqtt
@@ -28,11 +28,11 @@ import java.util.Properties
   * @param defaultPassword
   */
 case class BrokerConfig(
-           bindAddress: String,
-           bindPort: Integer,
-           defaultUser: String,
-           defaultPassword: String
-           )
+    bindAddress: String,
+    bindPort: Integer,
+    defaultUser: String,
+    defaultPassword: String
+)
 
 object MqttConfig {
 
@@ -52,9 +52,11 @@ object MqttConfig {
     * @param defaultPassword
     * @return [[BrokerConfig]]
     */
-  def getConfig(bindAddress: String, bindPort: Integer, defaultUser: String, defaultPassword: String): BrokerConfig = {
-      BrokerConfig(bindAddress, bindPort, defaultUser, defaultPassword)
-  }
+  def getConfig(bindAddress: String,
+                bindPort: Integer,
+                defaultUser: String,
+                defaultPassword: String): BrokerConfig =
+    BrokerConfig(bindAddress, bindPort, defaultUser, defaultPassword)
 
   /**
     * Convert [[BrokerConfig]] to [[Properties]]

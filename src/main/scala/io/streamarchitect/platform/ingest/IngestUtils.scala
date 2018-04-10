@@ -15,12 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.streamarchitect.platform
+package io.streamarchitect.platform.ingest
 
-package object ingest {
+import com.typesafe.config.{ Config, ConfigFactory }
 
-  type Traversable[+A] = scala.collection.immutable.Traversable[A]
-  type Iterable[+A]    = scala.collection.immutable.Iterable[A]
-  type Seq[+A]         = scala.collection.immutable.Seq[A]
-  type IndexedSeq[+A]  = scala.collection.immutable.IndexedSeq[A]
+/**
+  * Configuration singleton
+  */
+object IngestConfig {
+  val config: Config = ConfigFactory.load()
 }
